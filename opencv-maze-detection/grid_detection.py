@@ -22,7 +22,7 @@ def sort_contours(contours=[]):
     return ordered
 
 # Load image, Gaussian blur, convert to hsv
-img = cv2.imread("assets/20221229125134.jpg")
+img = cv2.imread("assets/20221229125145.jpg")
 original = img.copy()
 mask = np.zeros(img.shape, dtype=np.uint8)
 
