@@ -3,8 +3,8 @@ import numpy as np
 import requests
 
 # ESP32 URL
-URL = "http://192.168.16.211"
-AWB = True
+
+URL = "http://192.168.16.73"
 
 # Face recognition and opencv setup
 cap = cv2.VideoCapture(URL + ":81/stream")
