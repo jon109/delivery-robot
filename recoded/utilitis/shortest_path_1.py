@@ -31,8 +31,6 @@ def bfs(graph, start_list, end_list):
 #print(bfs(start, end))
 
 
-currentDirection = 0
-
 def moveSequence(pos, currentDirection, path, end):
     if (path == -1): return -1
     seq = []
@@ -54,8 +52,7 @@ def moveSequence(pos, currentDirection, path, end):
             seq.pop()
             seq.pop()
             seq[len(seq)-1] += 1
-    pos = end
-    return seq, currentDirection, pos
+    return seq, currentDirection
 
 
 def nodeChange(direction, node1, node2):

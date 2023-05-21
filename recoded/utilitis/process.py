@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from utilitis.functions import *
 
-def image_process(img, opencv, print_graph, maze_debbuger):
+def image_process(img, opencv = 1, print_graph= False, maze_debbuger= False):
 
     # Load image, Gaussian blur, convert to hsv
     original = img.copy()
@@ -27,7 +27,7 @@ def image_process(img, opencv, print_graph, maze_debbuger):
             area_thresh = area 
             big_contour = c
 
-    # Aproximating biggest contour with a polygonq
+    # Aproximating biggest contour with a polygone
     epsilon = 0.03*cv2.arcLength(big_contour,True)
     approx = cv2.approxPolyDP(big_contour,epsilon,True)
     cv2.drawContours(mask_for_contours, [approx], 0, (255,255,255), 3)
@@ -51,8 +51,14 @@ def image_process(img, opencv, print_graph, maze_debbuger):
         cv2.imshow("biggest contour", mask_for_contours)
         cv2.imshow("corners", mask_for_corners)
         cv2.imshow("image with corners and contour", img)
-        print("couldn't find the 4 corners, possible problems are:\n1. not all 4 points are in frame\n2. edges of square got mixed up with other objects\n3. check for light from windows")
-        return -1
+        cv2.moveWindow("original image",0 ,0)
+        cv2.moveWindow("edges",0,img.shape[0])
+        cv2.moveWindow("dilation of edges",0,2*img.shape[0])
+        cv2.moveWindow("biggest contour",400 ,0)
+        cv2.moveWindow("corners",400,img.shape[0])
+        cv2.moveWindow("image with corners and contour",400,2*img.shape[0])
+        print("couldn't find the 4 corners, possible problems are:\n1. not all 4 points are in frame\n2. edges of square got mixed up with other objects\n3. check for light from windows\n")
+        return -1, -1
     # Orders the points from top left to bottom right
     ordered_corners = sort_points(corners)
 
@@ -64,6 +70,7 @@ def image_process(img, opencv, print_graph, maze_debbuger):
                     [0, 500], [525, 500]])
     matrix = cv2.getPerspectiveTransform(pts1, pts2)
     cropped = cv2.warpPerspective(original, matrix, (525, 500))
+    cropped = cv2.resize(cropped, (0, 0), fx=img.shape[1]/cropped.shape[1], fy=img.shape[1]/cropped.shape[1])
     cropped_copy = cropped.copy()
     gray_cropped = cv2.cvtColor(cropped, cv2.COLOR_BGR2GRAY)
     cropped_hsv = cv2.cvtColor(cropped, cv2.COLOR_BGR2HSV)
@@ -99,22 +106,23 @@ def image_process(img, opencv, print_graph, maze_debbuger):
         cv2.imshow("threshold before dilation and erosion",result_tresh)
         cv2.imshow("after dilation",dilated2)
         cv2.imshow("after erosion",eroded2)
+        cv2.imshow("edges", edge)
+        cv2.imshow("dilation of edges", dilation )
+        cv2.imshow("biggest contour", mask_for_contours)
+        cv2.imshow("corners", mask_for_corners)
+        cv2.moveWindow("original image",0 ,0)
+        cv2.moveWindow("image with corners and contour",0,img.shape[0])
+        cv2.moveWindow("threshold before dilation and erosion",0,2*img.shape[0])
+        cv2.moveWindow("after dilation",400 ,0)
+        cv2.moveWindow("after erosion",400,cropped.shape[0]+40)
+        cv2.moveWindow("edges",800 ,0)
+        cv2.moveWindow("edges",800,img.shape[0])
+        cv2.moveWindow("dilation of edges",800,2*img.shape[0])
+        cv2.moveWindow("biggest contour",1200 ,0)
+        cv2.moveWindow("corners",1200,img.shape[0])
         print("couldn't recognize 36 squares, here are some problems that can occur:\n1. was able to recognize 4 points, but they are bad\n2. dilation might have amplified noise")
-        print("\npress q to close these images\n")
-        key=cv2.waitKey(0)
-        if key==ord('q'):
-            cv2.destroyAllWindows()
-        print("enter 'yes' if you want to see if the corners were the problem, if not enter any other key and press ENTER")
-        x = input()
-        if (x=="yes"):
-            cv2.imshow("original image", original)
-            cv2.imshow("edges", edge)
-            cv2.imshow("dilation of edges", dilation )
-            cv2.imshow("biggest contour", mask_for_contours)
-            cv2.imshow("corners", mask_for_corners)
-            cv2.imshow("image with corners and contour", img)
-            print("couldn't find the 4 corners, possible problems are:\n1. not all 4 points are in frame\n2. edges of square got mixed up with other objects\n3. check for light from windows")
-        return -1
+        print("if it is a corner problem please check the following:\n1. not all 4 points are in frame\n2. edges of square got mixed up with other objects\n3. check for light from windows\n")
+        return -1,-1
     
      # order the rectangels and creare the list of square slices that are sliced from cropped_hsv
     sorted_boxes = []
@@ -131,7 +139,6 @@ def image_process(img, opencv, print_graph, maze_debbuger):
     if (maze_debbuger == True):
         maze_debug(cropped_copy,sorted_boxes,status)
 
-    cv2.waitKey(0)
     points = generate_points(6, 6)
     # generate graph - uses status to create a dictionary in wich
     # each corner point is associated with other corner points it can reach
@@ -152,14 +159,24 @@ def image_process(img, opencv, print_graph, maze_debbuger):
             cv2.imshow("mask_for_contours", mask_for_contours)
             cv2.imshow("mask_for_corners", mask_for_corners)
             cv2.imshow("image", img)
-            cv2.imshow("cropped", cv2.resize(cropped_copy, (0, 0), fx=0.7, fy=0.7))
+            cv2.imshow("cropped", cropped_copy)
+            cv2.moveWindow("original",0 ,0)
+            cv2.moveWindow("edge",0,img.shape[0])
+            cv2.moveWindow("mask_for_contours",0,2*img.shape[0])
+            cv2.moveWindow("mask_for_corners",400 ,0)
+            cv2.moveWindow("image",400,img.shape[0])
+            cv2.moveWindow("cropped",400,2*img.shape[0])
         if (opencv == 1 or opencv == 3):
-            cv2.imshow("cropped", cv2.resize(cropped_copy, (0, 0), fx=0.7, fy=0.7))
-            cv2.imshow("result_tresh", cv2.resize(
-                result_tresh, (0, 0), fx=0.7, fy=0.7))
-            cv2.imshow("end_result", cv2.resize(cropped, (0, 0), fx=0.7, fy=0.7))
-            cv2.imshow("dsadasda", eroded2)
-            cv2.imshow("dasdas", dilated2)
+            cv2.imshow("cropped", cropped_copy)
+            cv2.imshow("result_tresh", result_tresh)
+            cv2.imshow("eroded", eroded2)
+            cv2.imshow("dilated", dilated2)
             cv2.imshow("square", get_square())
-
+            cv2.imshow("end_result", cropped)
+            cv2.moveWindow("cropped",400,2*img.shape[0])
+            cv2.moveWindow("result_tresh",800 ,0)
+            cv2.moveWindow("dilated",800,cropped.shape[0]+40)
+            cv2.moveWindow("eroded",1200,0)
+            cv2.moveWindow("end_result",1200 ,cropped.shape[0]+40)
+            cv2.moveWindow("square",1650 ,cropped.shape[0]//2)
     return graph, cropped_copy

@@ -115,7 +115,7 @@ def get_center_points_status(sections):
         status[(center_point_position)] = [IsMostlyNotRed(portionRight), IsMostlyNotRed(
             portionLeft), IsMostlyNotRed(portionUp), IsMostlyNotRed(portionDown)]
         # for debug choose i to choose a specific square to focus on
-        if (i == 3):
+        if (i == 21):
             cv2.rectangle(section, (int(0.5*x*(1-tx)), 0),
                           (int(0.5*x*(1+tx)), int(0.5*y*(1-ty))), (10, 255, 0), 1)
             cv2.rectangle(section, (int(0.5*x*(1-tx)), int(0.5*y*(1+ty))),
